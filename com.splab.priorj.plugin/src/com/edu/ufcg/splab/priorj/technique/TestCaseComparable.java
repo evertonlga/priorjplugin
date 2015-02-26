@@ -1,6 +1,6 @@
 package com.edu.ufcg.splab.priorj.technique;
 
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
+import coverage.TestCase;
 
 /*
 * PriorJ: JUnit Test Case Prioritization.

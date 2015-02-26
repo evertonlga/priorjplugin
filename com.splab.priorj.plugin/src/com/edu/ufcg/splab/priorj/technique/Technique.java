@@ -18,9 +18,10 @@ package com.edu.ufcg.splab.priorj.technique;
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import java.util.ArrayList;
 import java.util.List;
 
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
+import coverage.TestCase;
 
 
 
@@ -31,9 +32,9 @@ import com.edu.ufcg.splab.coverage.coverage.TestCase;
  * @author Julio Henrique
  *
  */
-public interface Technique {
-	 
-    /**
+public interface Technique { 
+    
+	/**
 	 * Prioritization method.
      * 
      * @return a list of prioritized tests.
@@ -41,6 +42,6 @@ public interface Technique {
      * @throws EmptySetOfTestCaseException when the set of test is empty.
      * 			
      */
-    public List<String> prioritize (List<TestCase> tests) throws EmptySetOfTestCaseException;
+	abstract public List<String> prioritize (List<TestCase> tests) throws EmptySetOfTestCaseException;
     
 }
