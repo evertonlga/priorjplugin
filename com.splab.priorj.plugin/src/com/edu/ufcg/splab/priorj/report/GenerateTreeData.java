@@ -2,11 +2,7 @@ package com.edu.ufcg.splab.priorj.report;
 
 import java.util.List;
 
-import com.edu.ufcg.splab.coverage.coverage.ClassCode;
-import com.edu.ufcg.splab.coverage.coverage.Method;
-import com.edu.ufcg.splab.coverage.coverage.Statement;
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
-import com.edu.ufcg.splab.coverage.coverage.TestSuite;
+import coverage.*;
 
 
 /**

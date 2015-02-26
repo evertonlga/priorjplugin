@@ -21,7 +21,7 @@ package com.edu.ufcg.splab.priorj.technique;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
+import coverage.TestCase;
 
 
 /**

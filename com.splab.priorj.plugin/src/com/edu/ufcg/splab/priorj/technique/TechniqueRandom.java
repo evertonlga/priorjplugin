@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
+import coverage.TestCase;
 
 
 

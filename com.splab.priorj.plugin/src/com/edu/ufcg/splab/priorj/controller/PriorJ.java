@@ -1,12 +1,12 @@
 package com.edu.ufcg.splab.priorj.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.edu.ufcg.splab.core.Difference;
 import com.edu.ufcg.splab.core.InstrumentClass;
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
-import com.edu.ufcg.splab.coverage.coverage.TestSuite;
+import com.edu.ufcg.splab.coverage.*;
 import com.edu.ufcg.splab.coverage.manager.Coverage;
 import com.edu.ufcg.splab.priorj.report.GenerateCoverageReport;
 import com.edu.ufcg.splab.priorj.report.GenerateExecutionOrderReport;
@@ -14,6 +14,9 @@ import com.edu.ufcg.splab.priorj.report.GenerateTestSuite;
 import com.edu.ufcg.splab.priorj.report.GenerateTestSuiteForJUnit4;
 import com.edu.ufcg.splab.priorj.technique.*;
 import com.java.io.JavaIO;
+
+import coverage.TestCase;
+import coverage.TestSuite;
 
 
 
@@ -30,7 +33,7 @@ public class PriorJ {
 	private static List<String> affectedBlocks;
 	private static boolean junitFrameworkVersion4;
 	private String projPath;
-	
+
 	public static PriorJ getInstance(){
 		if (PriorJ.instance == null){
 			techniques = new ArrayList<Integer>();
@@ -73,7 +76,7 @@ public class PriorJ {
 			throw new IllegalArgumentException("Invalid Technique Type!");
 		}
 	}
-	
+
 	/**
 	 * Removing a selected technique.
 	 * 
@@ -116,8 +119,8 @@ public class PriorJ {
 		Coverage coverage = new Coverage();
 		return coverage.getAllTests(suites);
 	}
-	
-	
+
+
 	/**
 	 * Getting an selection (fraction) to generate the suite.
 	 * 
@@ -144,7 +147,7 @@ public class PriorJ {
 			TechniqueEchelonTotal technique = new TechniqueEchelonTotal();
 			technique.setBlockAffected(affectedBlocks);
 			return technique.prioritize(allTests);
-			
+
 		}
 		else{
 			if (typeOfTechnique == TechniqueCreator.RBA){
@@ -156,6 +159,26 @@ public class PriorJ {
 			}
 		}
 	}
+
+	public List<String> prioritizeExp(int typeOfTechnique, List<TestCase> allTests) throws EmptySetOfTestCaseException {
+		TechniqueCreator creator = new TechniqueCreator();
+		if (typeOfTechnique == TechniqueCreator.CHANGED_BLOCKS){
+			TechniqueEchelonTotal technique = new TechniqueEchelonTotal();
+			technique.setBlockAffected(affectedBlocks);
+			return technique.prioritize(allTests);
+
+		}
+		else{
+			if (typeOfTechnique == TechniqueCreator.RBA){
+				TechniqueRBA technique = new TechniqueRBA(projPath);
+				return technique.prioritize(allTests);
+			}else{
+				Technique technique = creator.create(typeOfTechnique);
+				return technique.prioritize(allTests);
+			}
+		}
+	}
+
 	/**
 	 * 
 	 * 
@@ -174,14 +197,84 @@ public class PriorJ {
 			//prioritize the tests.
 			prioritizedList = prioritize(typeOfTechnique, allTests);
 			prioritizedList = getSelection(suiteSize, prioritizedList);
-			//saving the produced artifacts
-			String order = createOrderReport(typeOfTechnique, prioritizedList);
-			DataManager.save(acronyms+".js","js", order);
-			String suite = createSuite(acronyms, prioritizedList);
-			DataManager.save(acronyms+".java", suite);
+			creatPriorArtifact(prioritizedList, typeOfTechnique, acronyms);
 		}
 		return prioritizedList;
 	}
+
+	public List<String> prioritizeAllExp(int suiteSize, List<TestCase> allTests) throws Exception{
+		List<String> prioritizedList = new ArrayList<String>();
+		for (Integer typeOfTechnique : techniques){
+			//getting the suite names
+			String acronyms = TechniqueCreator.acronyms(typeOfTechnique);
+			//prioritize the tests.
+//			prioritizedList = prioritizeExp(typeOfTechnique, allTests);
+
+			TechniqueCreator creator = new TechniqueCreator();
+			List<String> weightList;
+			List<String> notWeightList;
+			if (typeOfTechnique == TechniqueCreator.CHANGED_BLOCKS || 
+					typeOfTechnique == TechniqueCreator.RBA){
+				if (typeOfTechnique == TechniqueCreator.CHANGED_BLOCKS ){
+					TechniqueEchelonTotal technique = new TechniqueEchelonTotal();
+					technique.setBlockAffected(affectedBlocks);
+					technique.weightList = new ArrayList<String>();
+					technique.notWeightList = new ArrayList<String>();
+					technique.prioritize(allTests);
+					weightList = technique.weightList;
+					notWeightList = technique.notWeightList;
+				}else{
+					TechniqueRBA technique = new TechniqueRBA(projPath);
+					technique.weightList = new ArrayList<String>();
+					technique.notWeightList = new ArrayList<String>();
+					technique.prioritize(allTests);
+					weightList = technique.weightList;
+					notWeightList = technique.notWeightList;
+				}
+
+				for (int i = 1; i < 41; i++) {
+					prioritizedList = new ArrayList<String>();
+					Collections.shuffle(notWeightList);
+					prioritizedList = copy(weightList);
+					prioritizedList.addAll(copy(notWeightList));
+					creatPriorArtifact(prioritizedList, typeOfTechnique, acronyms+"_"+i);
+				}
+			}
+			else{
+				Technique technique = creator.create(typeOfTechnique);
+				for (int i = 1; i < 41; i++) {
+					prioritizedList = new ArrayList<String>();
+					prioritizedList = technique.prioritize(allTests);
+					creatPriorArtifact(prioritizedList, typeOfTechnique, acronyms+"_"+i);
+				}
+
+			}
+
+			//			prioritizedList = getSelection(suiteSize, prioritizedList);
+			//saving the produced artifacts
+
+		}
+		return prioritizedList;
+	}
+
+
+	private List<String> copy(List<String> weightList) {
+		ArrayList<String> returnStr = new ArrayList<String>();
+		for (String string : weightList) {
+			returnStr.add(string);
+		}
+		return returnStr;
+	}
+
+
+	private void creatPriorArtifact(List<String> prioritizedList,
+			Integer typeOfTechnique, String acronyms) throws Exception {
+		String order = createOrderReport(typeOfTechnique, prioritizedList);
+		DataManager.save(acronyms+".js","js", order);
+		String suite = createSuite(acronyms, prioritizedList);
+		DataManager.save(acronyms+".java", suite);
+	}
+
 	/**
 	 * This method prioritize with many techniques simultaneously.
 	 * @param projPath 
@@ -196,14 +289,10 @@ public class PriorJ {
 			String acronyms = TechniqueCreator.acronyms(typeOfTechnique);
 			//prioritize the tests.
 			List<String> prioritizedList = prioritize(typeOfTechnique, allTests);
-			//saving the produced artifacts
-			String order = createOrderReport(typeOfTechnique, prioritizedList);
-			DataManager.save(acronyms+".js","js", order);
-			String suite = createSuite(acronyms, prioritizedList);
-			DataManager.save(acronyms+".java", suite);
+			creatPriorArtifact(prioritizedList, typeOfTechnique, acronyms);
 		}
 	}
-	
+
 	/**
 	 * This method create a prioritized test suite from a list of tests.
 	 * 
@@ -223,7 +312,7 @@ public class PriorJ {
 			return GenerateTestSuite.generate("tests", suiteName, tests);
 		}
 	}
-	
+
 	private boolean isJUnit4() {
 		return junitFrameworkVersion4;
 	}
@@ -262,7 +351,7 @@ public class PriorJ {
 		GenerateCoverageReport textReport = new GenerateCoverageReport(suites);
 		return textReport.generateCoverageReport();
 	}
-	
+
 	/**
 	 * This method instrument a class.
 	 * 
@@ -276,10 +365,10 @@ public class PriorJ {
 	 * @throws Exception 
 	 */
 	public void instrument(String filePath, String file, boolean isTest) throws Exception {
-		 InstrumentClass inst = new InstrumentClass(filePath, file, isTest);
-	     inst.instrumentationRun();
+		InstrumentClass inst = new InstrumentClass(filePath, file, isTest);
+		inst.instrumentationRun();
 	}
-	
+
 	/**
 	 * Check differences between two versions of same code.
 	 * 
@@ -292,10 +381,10 @@ public class PriorJ {
 		Difference difference = new Difference(filePath, oldFilePath);
 		difference.diff();
 		List<String> affected = difference.getStatementsDiff();
-        return affected;
+		return affected;
 	}
 
-	
+
 	/**
 	 * 
 	 * @param blocks
@@ -303,7 +392,7 @@ public class PriorJ {
 	public void setAffectedBlocks(List<String> blocks) {
 		this.affectedBlocks = blocks;
 	}	
-	
+
 	public static void main(String[] args) {
 		System.out.println("PriorJ version 1.0.6");
 	}

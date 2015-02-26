@@ -62,16 +62,18 @@ public class DifferenceVisitor implements IResourceProxyVisitor  {
 	private void checkFile(IFile file) {
 		String newVersionProjectName = file.getProject().getName();
 		String filePath = file.getLocation().toOSString();
-		pathGenerator.setTarget(projectName);
-		pathGenerator.setCurrentProject(newVersionProjectName);
-		pathGenerator.convertCurrentFilePath();
-		String oldFilePath = pathGenerator.getCurrentFile();
-		if(JavaIO.exist(filePath) && JavaIO.exist(oldFilePath)){
-			if (!Rule.isInterface(oldFilePath) && Rule.isClassCode(oldFilePath)){
-				checkingDifferences(filePath, oldFilePath);
-				checkingDifferences(oldFilePath,filePath);
-			}
-    	}
+//		pathGenerator.setTarget(projectName);
+//		pathGenerator.setCurrentProject(newVersionProjectName);
+//		pathGenerator.convertCurrentFilePath();
+//		String oldFilePath = pathGenerator.getCurrentFile();
+		String oldFilePath = filePath.replace(newVersionProjectName, projectName);
+		if (filePath.endsWith(".java") && oldFilePath.endsWith(".java"))
+			if(JavaIO.exist(filePath) && JavaIO.exist(oldFilePath)){
+				if (!Rule.isInterface(oldFilePath) && Rule.isClassCode(oldFilePath)){
+					checkingDifferences(filePath, oldFilePath);
+					checkingDifferences(oldFilePath,filePath);
+				}
+	    	}
 	}
 
 	/**

@@ -22,8 +22,9 @@ package com.edu.ufcg.splab.coverage.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.edu.ufcg.splab.coverage.coverage.*;
 import com.java.io.JavaIO;
+
+import coverage.*;
 
 
 /**

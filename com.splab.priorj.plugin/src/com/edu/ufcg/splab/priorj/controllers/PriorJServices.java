@@ -3,6 +3,7 @@ package com.edu.ufcg.splab.priorj.controllers;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -12,8 +13,8 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.PartInitException;
 
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
-import com.edu.ufcg.splab.coverage.coverage.TestSuite;
+import coverage.*;
+
 import com.edu.ufcg.splab.coverage.manager.Coverage;
 import com.edu.ufcg.splab.priorj.controller.DataManager;
 import com.edu.ufcg.splab.priorj.controller.PriorJ;
@@ -171,8 +172,10 @@ public class PriorJServices {
 		List<TestCase> allTests = coverage.getAllTests(suites);
 		String projectName = DataManager.getProjectFolderName();
 		String projPath = ajdtHandler.getFullProjectPath(projectName);
+
 		priorj.setProjPath(projPath);
 		priorj.prioritizeAll(size, allTests);
+//		priorj.prioritizeAllExp(size, allTests);
 	}
 	
 	/**
@@ -425,6 +428,13 @@ public class PriorJServices {
 		IProject currentProject = ajdtHandler.getProject(newPojectName);
 		currentProject.accept(visitor, IResource.NONE);
 		List<String> diffs = visitor.getDifferences();
+		
+		List<String> notRepetitiveList = new ArrayList<String>();
+		for (String diff : diffs) {
+			if (!notRepetitiveList.contains(diff))
+				notRepetitiveList.add(diff);
+		}
+		diffs = notRepetitiveList;
 		saveDiffs(diffs);
 		priorj.setAffectedBlocks(diffs);
 	}

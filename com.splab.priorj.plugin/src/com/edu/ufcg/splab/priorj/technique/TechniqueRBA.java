@@ -13,14 +13,13 @@ import java.util.Scanner;
 
 import main.FacadeRBA;
 
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
+import coverage.TestCase;
 import com.java.io.JavaIO;
 
 import exceptions.DBException;
 
 
-
-public class TechniqueRBA implements Technique {
+public class TechniqueRBA extends ModificationTechnique implements Technique {
 
 	private List<String> affectedMehts;
 	private String path;
@@ -61,7 +60,7 @@ public class TechniqueRBA implements Technique {
 			throws EmptySetOfTestCaseException {
 		List<String> strs = treatStrs(runRBA());
 		setAffectedMeths(strs);
-		
+
 		List<TestCase> copyList = new ArrayList<TestCase>(tests);
 
 		List<String> suiteList = new ArrayList<String>();
@@ -79,15 +78,27 @@ public class TechniqueRBA implements Technique {
 		}
 
 		Collections.sort(weightList);
+		List<String> weightListStr = new ArrayList<String>();
+		List<String> notWeightListStr = new ArrayList<String>();
 
 		for (int i=weightList.size()-1; i>=0; i--) {
 			TestCaseComparable obj = weightList.get(i);
-			suiteList.add(obj.getTestCase().getSignature());
+			String tcSig = obj.getTestCase().getSignature();
+			suiteList.add(tcSig);
+
+			weightListStr.add(tcSig);
 		}
 
+		this.weightList = weightListStr;
+
 		Collections.shuffle(notWeighted);
-		for (TestCase test: notWeighted)
-			suiteList.add(test.getSignature());
+		for (TestCase test: notWeighted){
+			String tcSig = test.getSignature();
+			suiteList.add(tcSig);
+
+			notWeightListStr.add(tcSig);
+		}
+		this.notWeightList = notWeightListStr;
 
 
 		return suiteList;
@@ -164,7 +175,7 @@ public class TechniqueRBA implements Technique {
 							params[5] = input.nextLine();
 							return params;
 						}else{
-							if (line.equals("Pull Up Fild")){
+							if (line.equals("Pull Up Field")){
 								params = new String[4];
 								params[0] = "PUF";
 								params[1] = input.nextLine();
@@ -193,7 +204,7 @@ public class TechniqueRBA implements Technique {
 						}
 					}
 				}
-					
+
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

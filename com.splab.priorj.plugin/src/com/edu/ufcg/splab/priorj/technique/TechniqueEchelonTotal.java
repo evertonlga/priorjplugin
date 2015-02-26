@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
+import coverage.TestCase;
 
 
-public class TechniqueEchelonTotal implements Technique {
+public class TechniqueEchelonTotal extends ModificationTechnique implements Technique {
 	
 	private List<String> blockAffected;
     
@@ -86,16 +86,26 @@ public class TechniqueEchelonTotal implements Technique {
         
         Collections.sort(weightList);
         
+        List<String> weightListStr = new ArrayList<String>();
+        List<String> notWeightListStr = new ArrayList<String>();
+        
         for (int i=weightList.size()-1; i>=0; i--) {
 			TestCaseComparable obj = weightList.get(i);
-        	suiteList.add(obj.getTestCase().getSignature());
+        	String tcSig = obj.getTestCase().getSignature();
+			suiteList.add(tcSig);
+        	
+        	weightListStr.add(tcSig);
 		}
+        this.weightList = weightListStr;
         
         Collections.shuffle(notWeighted);
-        for (TestCase test: notWeighted)
-        	suiteList.add(test.getSignature());
-        
-
+        for (TestCase test: notWeighted){
+        	String tcSig = test.getSignature();
+        	suiteList.add(tcSig);
+        	
+        	notWeightListStr.add(tcSig);
+        }
+        this.notWeightList = notWeightListStr;
         return suiteList;
     }
 

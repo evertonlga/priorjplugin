@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.edu.ufcg.splab.coverage.coverage.TestCase;
+import coverage.TestCase;
 
 
 /**
@@ -63,8 +63,8 @@ public class TechniqueTotalStatement implements Technique {
             prioritizedList.add(copyList.get(testIndex).getSignature());
           
             copyList.remove(testIndex);
-        }   
-            
+        }  
+      
         return prioritizedList;
 	}
 
